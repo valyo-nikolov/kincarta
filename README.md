@@ -1,4 +1,4 @@
-# kinkarta
+# kincarta
 Testing https://www.yavlena.com/ site
 
 To setup your environment you need following prerequisites:
