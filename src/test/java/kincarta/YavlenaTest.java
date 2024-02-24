@@ -90,8 +90,10 @@ public class YavlenaTest {
             Broker broker = new Broker();
             broker.setName(webElement.findElement(By.cssSelector(".name a")).getAttribute("title"));
             broker.setAddress(webElement.findElement(By.className("office")).getText());
-            broker.setLandlinePhone(webElement.findElement(By.xpath("(//div[@class='tel-group']//a)[1]")).getText());
-            broker.setMobilePhone(webElement.findElement(By.xpath("(//div[@class='tel-group']//a)[2]")).getText());
+            broker.setLandlinePhone(webElement.findElement(
+                    By.xpath("(//div[@class='tel-group']//a)[1]")).getText());
+            broker.setMobilePhone(webElement.findElement(
+                    By.xpath("(//div[@class='tel-group']//a)[2]")).getText());
             broker.setNumProperties(webElement.findElement(By.cssSelector(".position a[title]")).getText());
             brokersList.add(broker);
         });
@@ -114,19 +116,23 @@ public class YavlenaTest {
             fluentWait.until(ExpectedConditions.visibilityOf(actualName.get()));
 
             final ArrayList<WebElement>[] actualAddresses = new ArrayList[]{(ArrayList<WebElement>) driver.findElements(
-                    By.xpath("//article//a[@title='" + brokerName + "']/parent::h3/following-sibling::div[@class='office']"))};
+                    By.xpath("//article//a[@title='" + brokerName + "']/" +
+                            "parent::h3/following-sibling::div[@class='office']"))};
             actualAddresses[0].forEach(actAddress -> {
                 fluentWait.until(ExpectedConditions.visibilityOf(actAddress));
             });
 
-            AtomicReference<ArrayList<WebElement>> actualNumPropertiesList = new AtomicReference<>((ArrayList<WebElement>) driver.findElements(
-                    By.xpath("//article//a[@title='" + brokerName + "']/parent::h3/parent::div/following-sibling::div[@class='position']/a")));
+            AtomicReference<ArrayList<WebElement>> actualNumPropertiesList =
+                    new AtomicReference<>((ArrayList<WebElement>) driver.findElements(
+                    By.xpath("//article//a[@title='" + brokerName + "']/" +
+                            "parent::h3/parent::div/following-sibling::div[@class='position']/a")));
             actualNumPropertiesList.get().forEach(actualNumProperties -> {
                 fluentWait.until(ExpectedConditions.visibilityOf(actualNumProperties));
             });
 
             ArrayList<WebElement> numberOfArticlesSameName =
-                    (ArrayList<WebElement>) driver.findElements(By.xpath("//article//h3/a[@title='" + brokerName + "']"));
+                    (ArrayList<WebElement>) driver.findElements(
+                            By.xpath("//article//h3/a[@title='" + brokerName + "']"));
 
             ArrayList<WebElement> actualLandlinePhoneList = new ArrayList<>();
             ArrayList<WebElement> actualMobilePhoneList = new ArrayList<>();
@@ -143,7 +149,8 @@ public class YavlenaTest {
                             }
                         } catch (StaleElementReferenceException sere) {
                             actualAddresses[0] = (ArrayList<WebElement>) driver.findElements(
-                                    By.xpath("//article//a[@title='" + brokerName + "']/parent::h3/following-sibling::div[@class='office']"));
+                                    By.xpath("//article//a[@title='" + brokerName + "']" +
+                                            "/parent::h3/following-sibling::div[@class='office']"));
                             actualAddresses[0].forEach(actAddressRetry -> {
                                 fluentWait.until(ExpectedConditions.visibilityOf(actAddressRetry));
                                 if (actAddressRetry.getText().equals(broker.getAddress())) {
@@ -162,7 +169,8 @@ public class YavlenaTest {
                             }
                         } catch (StaleElementReferenceException sere) {
                             actualNumPropertiesList.set((ArrayList<WebElement>) driver.findElements(
-                                    By.xpath("//article//a[@title='" + brokerName + "']/parent::h3/parent::div/following-sibling::div[@class='position']/a")));
+                                    By.xpath("//article//a[@title='" + brokerName + "']" +
+                                            "/parent::h3/parent::div/following-sibling::div[@class='position']/a")));
                             actualNumPropertiesList.get().forEach(actualNumPropertiesRetry -> {
                                 fluentWait.until(ExpectedConditions.visibilityOf(actualNumPropertiesRetry));
                                 if (actualNumPropertiesRetry.getText().equals(broker.getNumProperties())) {
