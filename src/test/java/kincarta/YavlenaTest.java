@@ -218,7 +218,6 @@ public class YavlenaTest {
         ArrayList<WebElement> articlesList = (ArrayList<WebElement>) driver.findElements(By.tagName("article"));
         ArrayList<Broker> brokersList = new ArrayList<>();
         final String[] brokerNames = new String[1];
-        final String[] mobilePhones = new String[1];
 
         articlesList.forEach(webElement -> {
             Broker broker = new Broker();
@@ -228,14 +227,6 @@ public class YavlenaTest {
             broker.setLandlinePhone(webElement.findElement(
                     By.xpath("(//article//a[@title='" + brokerNames[0] + "']/parent::h3/parent::div/" +
                             "following-sibling::div[@class='tel-group']/span[@class='tel']/a)[1]")).getText());
-//            try {
-//                mobilePhones[0] = Arrays.toString(new String[]{webElement.findElement(
-//                        By.xpath("(//article//a[@title='" + brokerNames[0] + "']/parent::h3/parent::div/" +
-//                                "following-sibling::div[@class='tel-group']/span[@class='tel']/a)[2]")).getText()});
-//            } catch (org.openqa.selenium.NoSuchElementException noSuchElementException) {
-//                mobilePhones[0] = "";
-//            }
-            //     broker.setMobilePhone(mobilePhones[0]);
             broker.setNumProperties(webElement.findElement(By.cssSelector(".position a[title]")).getText());
             brokersList.add(broker);
         });
@@ -276,7 +267,8 @@ public class YavlenaTest {
                         } catch (StaleElementReferenceException sere) {
                             actualLandlinePhoneList.set((ArrayList<WebElement>) driver.findElements(
                                     By.xpath("(//article[1]//a[@title='" + brokerName + "']/parent::h3/" +
-                                            "parent::div/following-sibling::div[@class='tel-group']/span[@class='tel']/a)[1]")));
+                                            "parent::div/following-sibling::div[@class='tel-group']" +
+                                            "/span[@class='tel']/a)[1]")));
                             actualLandlinePhoneList.get().forEach(actualLandlinePhoneRetry -> {
                                 fluentWait.until(ExpectedConditions.visibilityOf(actualLandlinePhoneRetry));
                                 if (actualLandlinePhoneRetry.getText().equals(broker.getLandlinePhone())) {
@@ -297,6 +289,112 @@ public class YavlenaTest {
             WebElement brokersLoading = driver.findElement(By.cssSelector(".brokers-loading[style='display: block;']"));
             fluentWait.until((ExpectedConditions.invisibilityOf(brokersLoading)));
         });
+    }
 
+
+    @Test
+    public void testYavlenaSiteMobilePhones() {
+        driver.get("https://www.yavlena.com/broker/");
+
+        WebElement hideCookiesBtn = driver.findElement(By.className("hide-cookies-message"));
+        WebElement loadMoreBtn = driver.findElement(By.className("load-more-results-list"));
+
+        fluentWait.until(ExpectedConditions.elementToBeClickable(hideCookiesBtn));
+        hideCookiesBtn.click();
+
+        fluentWait.until(ExpectedConditions.elementToBeClickable(loadMoreBtn));
+        js.executeScript("arguments[0].click();", loadMoreBtn);
+
+        fluentWait.until(ExpectedConditions.invisibilityOf(loadMoreBtn));
+
+        ArrayList<WebElement> articlesList = (ArrayList<WebElement>) driver.findElements(By.tagName("article"));
+        ArrayList<Broker> brokersList = new ArrayList<>();
+        final String[] brokerNames = new String[1];
+        final String[] mobilePhones = new String[1];
+
+        articlesList.forEach(webElement -> {
+            Broker broker = new Broker();
+            brokerNames[0] = webElement.findElement(By.cssSelector(".name a")).getAttribute("title");
+            broker.setName(brokerNames[0]);
+            broker.setAddress(webElement.findElement(By.className("office")).getText());
+            try {
+                mobilePhones[0] = Arrays.toString(new String[]{webElement.findElement(
+                        By.xpath("(//article//a[@title='" + brokerNames[0] + "']/parent::h3/parent::div/" +
+                                "following-sibling::div[@class='tel-group']/span[@class='tel']/a)[2]")).getText()});
+            } catch (org.openqa.selenium.NoSuchElementException noSuchElementException) {
+                mobilePhones[0] = "";
+            }
+            broker.setMobilePhone(mobilePhones[0]);
+            broker.setNumProperties(webElement.findElement(By.cssSelector(".position a[title]")).getText());
+            brokersList.add(broker);
+        });
+
+        ArrayList<Broker> brokersWithMobileList = new ArrayList<>();
+
+        brokersList.forEach(broker -> {
+            if (!broker.getMobilePhone().contentEquals("")) {
+                brokersWithMobileList.add(broker);
+            }
+        });
+
+        final WebElement[] searchInput = new WebElement[1];
+
+        brokersWithMobileList.forEach(brokerWithMobile -> {
+            searchInput[0] = (driver.findElement(By.className("input-search")));
+
+            fluentWait.until(ExpectedConditions.visibilityOf(searchInput[0]));
+
+            String brokerName = brokerWithMobile.getName();
+            searchInput[0].sendKeys(brokerName);
+
+            AtomicReference<WebElement> actualName =
+                    new AtomicReference<>(driver.findElement(
+                            By.xpath("(//a[@title='" + brokerName + "'])[1]")));
+            fluentWait.until(ExpectedConditions.visibilityOf(actualName.get()));
+
+            AtomicReference<ArrayList<WebElement>> actualMobilePhoneList =
+                    new AtomicReference<>((ArrayList<WebElement>) driver.findElements(
+                            By.xpath("(//article[1]//a[@title='" + brokerName + "']/parent::h3/" +
+                                    "parent::div/following-sibling::div[@class='tel-group']/span[@class='tel']/a)[2]")));
+            actualMobilePhoneList.get().forEach(actualMobilePhone -> {
+                fluentWait.until(ExpectedConditions.visibilityOf(actualMobilePhone));
+            });
+
+            brokersList.forEach(broker -> {
+                if(brokerName.equals(broker.getName())) {
+
+                    final boolean[] flagForMobilePhoneMatch = new boolean[1];
+                    actualMobilePhoneList.get().forEach(actualMobilePhone -> {
+                        try {
+                            if (actualMobilePhone.getText().contentEquals(broker.getMobilePhone()
+                                    .replace("[", "").replace("]", ""))) {
+                                flagForMobilePhoneMatch[0] = true;
+                            }
+                        } catch (StaleElementReferenceException sere) {
+                            actualMobilePhoneList.set((ArrayList<WebElement>) driver.findElements(
+                                    By.xpath("(//article[1]//a[@title='" + brokerName + "']/parent::h3/" +
+                                            "parent::div/following-sibling::div[@class='tel-group']" +
+                                            "/span[@class='tel']/a)[2]")));
+                            actualMobilePhoneList.get().forEach(actualMobilePhoneRetry -> {
+                                fluentWait.until(ExpectedConditions.visibilityOf(actualMobilePhoneRetry));
+                                if (actualMobilePhoneRetry.getText().contentEquals(broker.getMobilePhone()
+                                        .replace("[", "").replace("]", ""))) {
+                                    flagForMobilePhoneMatch[0] = true;
+                                }
+                            });
+                        }
+                    });
+                    Assert.assertTrue(flagForMobilePhoneMatch[0]);
+                }
+            });
+
+            WebElement clearBtn = driver.findElement(By.className("clear-btn"));
+
+            fluentWait.until(ExpectedConditions.elementToBeClickable(clearBtn));
+            clearBtn.click();
+
+            WebElement brokersLoading = driver.findElement(By.cssSelector(".brokers-loading[style='display: block;']"));
+            fluentWait.until((ExpectedConditions.invisibilityOf(brokersLoading)));
+        });
     }
 }

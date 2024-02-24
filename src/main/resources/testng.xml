@@ -5,6 +5,7 @@
                 <methods>
                     <method name="testYavlenaSiteNamesAdressesAndNumberOfProperties"></method>
                     <method name="testYavlenaSiteLandlinePhones"></method>
+                    <method name="testYavlenaSiteMobilePhones"></method>
                 </methods>
             </class>
         </classes>
