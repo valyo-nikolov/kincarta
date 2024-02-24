@@ -1,7 +1,12 @@
 <suite name="Test-method Suite" parallel="methods" thread-count="1" >
     <test name="Test-method test 1" group-by-instances="true">
         <classes>
-            <class name="kincarta.YavlenaTest" />
+            <class name="kincarta.YavlenaTest">
+                <methods>
+                    <method name="testYavlenaSiteNamesAdressesAndNumberOfProperties"></method>
+                    <method name="testYavlenaSiteLandlinePhones"></method>
+                </methods>
+            </class>
         </classes>
     </test>
 </suite>
